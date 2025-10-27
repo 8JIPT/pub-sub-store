@@ -23,8 +23,16 @@ async function printReport() {
       }
 }
 
+async function processMessage(msg) {
+    const message = JSON.parse(msg.content.toString());
+    console.log('Received order:', message);
+    await updateReport(message.products);
+    await printReport();
+}
+
 async function consume() {
-    //TODO: Constuir a comunicação com a fila 
+    console.log(`SUCCESSFULLY SUBSCRIBED TO QUEUE: ${process.env.RABBITMQ_QUEUE_NAME}`)
+    await (await RabbitMQService.getInstance()).consume(process.env.RABBITMQ_QUEUE_NAME, (msg) => {processMessage(msg)})
 } 
 
 consume()
